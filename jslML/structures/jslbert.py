@@ -52,8 +52,8 @@ class JslBERTBlock(Layer):
         self.addnorm2 = LayerNormalization()
         self.ffp = Dense(d_mdl, name="block_out")
 
-    def call(self, Q, K, V, M):
-        out = self.lma(Q, K, V, M)
+    def call(self, Q, K, V):
+        out = self.lma(Q, K, V)
         out = self.addnorm1(out)
         out = self.ffp(out)
         return self.addnorm2(out)
@@ -117,8 +117,10 @@ class JslBERT(tf.keras.Model):
             
         return {"cls_loss": cls_loss, "tok_loss": tok_loss}
 
+    @tf.function(input_signature=[tf.TensorSpec(shape=(None, None, None), dtype=tf.int32), 
+                                  tf.TensorSpec(shape=None, dtype=tf.bool)])
     def encode(self, X, train=False):
-        Mask = X[:, 0, :] != self.PAD
+        # Mask = X[:, 0, :] != self.PAD
         if train:
             Tok = tf.one_hot(self._mask(X[:, 0, :]), self.vocab_size, axis=-1)
         else:
@@ -135,7 +137,7 @@ class JslBERT(tf.keras.Model):
         res = Word
 
         for block in self.blocks:
-            res = block(res, res, res, Mask)
+            res = block(res, res, res)
 
         return res
 

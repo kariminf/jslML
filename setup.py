@@ -35,7 +35,7 @@ setup(
     author_email = "kariminfo0@gmail.com",
     description = ("Machine learning for jslingua"),
     license = "Apache-2.0",
-    keywords = "ML jslingua languages poetry prosody",
+    keywords = "ML jslingua ML models",
     url = "https://github.com/kariminf/jslML",
     packages=["jslML", "jslML.structures", "jslML.models", "jslML.preprocess"],
     scripts=["exec/aruudy", "exec/aruudy_flask"],

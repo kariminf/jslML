@@ -18,50 +18,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging, os
-logging.disable(logging.WARNING)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-from jslbert import JslBERT
+from jslML.structures.jslbert import JslBERT
 
 
+def new_eng_char_bert(blocks_nbr=2, d_model=10, heads_nbr=3, vocab_size = 100, max_length = 30):
+    brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length)
+    brt.compile(run_eagerly=True)
+    return brt
 
-blocks_nbr = 2
-d_model    = 10
-heads_nbr  = 3
-vocab_size = 96
-max_length = 30
-brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length)
 
-brt.compile()
+def train_eng_char_bert(brt, X, Y, epochs=100):
+    brt.fit(X, Y, epochs=epochs)
 
-X = [[[5, 2, 1, 5] + [0] * 26, [1] * 30, [0] * 30 ]]
+    print("tokEmb")
+    print(brt.tokEmb.weights)
 
-Y = [[1]]
+    print("posEmb")
+    print(brt.posEmb.weights)
 
-brt.fit(X, Y, epochs=1)
+    print("segEmb")
+    print(brt.segEmb.weights)
 
-print("tokEmb")
-print(brt.tokEmb.weights)
-
-print("posEmb")
-print(brt.posEmb.weights)
-
-print("segEmb")
-print(brt.segEmb.weights)
-
-for block in brt.blocks:
-    attention_weights = block.lma.get_weights()
-    print("Query")
-    print(block.lma._query_dense.weights)
-    print("Keys")
-    print(block.lma._key_dense.weights)
-    print("Values")
-    print(block.lma._value_dense.weights)
-    print("Proj")
-    print(block.lma._output_dense.weights)
-    print("FFP")
-    print(block.ffp.weights)
+    for block in brt.blocks:
+        attention_weights = block.lma.get_weights()
+        print("Query")
+        print(block.lma._query_dense.weights)
+        print("Keys")
+        print(block.lma._key_dense.weights)
+        print("Values")
+        print(block.lma._value_dense.weights)
+        print("Proj")
+        print(block.lma._output_dense.weights)
+        print("FFP")
+        print(block.ffp.weights)
 
 
 # weight_names = ['query', 'keys',  'values', 'proj']
