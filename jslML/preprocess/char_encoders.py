@@ -19,7 +19,7 @@
 # limitations under the License.
 
 
-eng_char_voc_size = 96
+eng_char_voc_size = 100
 eng_char_start = 33
 eng_char_end = 126
 

@@ -21,14 +21,14 @@
 from jslML.structures.jslbert import JslBERT
 
 
-def new_eng_char_bert(blocks_nbr=2, d_model=10, heads_nbr=3, vocab_size = 100, max_length = 30):
-    brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length)
+def new_eng_char_bert(blocks_nbr=1, d_model=10, heads_nbr=2, vocab_size = 100, max_length = 30, d_mha=5):
+    brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha)
     brt.compile(run_eagerly=True)
     return brt
 
 
-def train_eng_char_bert(brt, X, Y, epochs=100):
-    brt.fit(X, Y, epochs=epochs)
+def train_eng_char_bert(brt, X, Y, epochs=100, batch_size=4000):
+    brt.fit(X, Y, epochs=epochs, batch_size=batch_size)
 
     print("tokEmb")
     print(brt.tokEmb.weights)

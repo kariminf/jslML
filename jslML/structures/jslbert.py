@@ -45,12 +45,17 @@ class MaskedLoss(tf.keras.losses.Loss):
         return tf.reduce_sum(loss)
 
 class JslBERTBlock(Layer):
-    def __init__(self, d_mdl, h):
+    def __init__(self, d_mdl, heads_nbr, q_length, v_length, d_mha):
         super(JslBERTBlock, self).__init__()
-        self.lma = MultiHeadAttention(h, key_dim=d_mdl)
+        self.lma = MultiHeadAttention(heads_nbr, key_dim=d_mha)
+        # self.lma._build_from_signature([q_length, d_mdl], [v_length, d_mdl])
+        # self.lma = D2LMultiHeadAttention(v_length, q_length, v_length, d_mdl, h, 0.5, bias=True)
         self.addnorm1 = LayerNormalization()
         self.addnorm2 = LayerNormalization()
         self.ffp = Dense(d_mdl, name="block_out")
+        self.d_mdl = d_mdl
+        self.q_length = q_length
+        self.v_length = v_length
 
     def call(self, Q, K, V):
         out = self.lma(Q, K, V)
@@ -59,14 +64,14 @@ class JslBERTBlock(Layer):
         return self.addnorm2(out)
 
 class JslBERT(tf.keras.Model):
-    def __init__(self, blocks_nbr, d_model, heads_nbr, vocab_size, max_length, mask_rate=0.2):
+    def __init__(self, blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha, mask_rate=0.2):
         super(JslBERT, self).__init__()
         self.tokEmb = Dense(d_model, name="Tok_embedding")
         self.posEmb = Dense(d_model, name="Pos_embedding")
         self.segEmb = Dense(d_model, name="Seg_embedding")
         self.blocks = []
         for i in range(blocks_nbr):
-            self.blocks.append(JslBERTBlock(d_model, heads_nbr))
+            self.blocks.append(JslBERTBlock(d_model, heads_nbr, max_length, max_length, d_mha))
         self.cls = Dense(1, activation="sigmoid", name="Is_next")
         self.tok = Dense(vocab_size, activation="softmax", name="Token")
 
@@ -99,22 +104,22 @@ class JslBERT(tf.keras.Model):
         # Tok, Pos, Seg, Mask, Y = data["Tok"], data["Pos"], data["Seg"], data["Mask"], data["Y"]
         X, Y = data
         X = tf.cast(X, tf.int32)
+        M = tf.cast(tf.shape(Y)[0], tf.float32)
 
         with tf.GradientTape() as tape:
             logits = self.encode(X, train=True)
             cls_logits = self.cls(logits[:, 0, :])
-            cls_loss = tf.reduce_sum(self.cls_loss(Y, cls_logits))
+            cls_loss = tf.reduce_sum(self.cls_loss(Y, cls_logits))/M
 
             tok_logits = self.tok(logits[:, 1:, :])
-            tok_loss = self.tok_loss(X[:, 0, 1:], tok_logits)
+            tok_loss = self.tok_loss(X[:, 0, 1:], tok_logits)/M
 
             loss = cls_loss + tok_loss
         
         variables = self.trainable_variables 
         gradients = tape.gradient(loss, variables)
         self.optimizer.apply_gradients(zip(gradients, variables))
-        
-            
+          
         return {"cls_loss": cls_loss, "tok_loss": tok_loss}
 
     @tf.function(input_signature=[tf.TensorSpec(shape=(None, None, None), dtype=tf.int32), 
