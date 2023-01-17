@@ -50,18 +50,20 @@ class JslBERTBlock(Layer):
         self.lma = MultiHeadAttention(heads_nbr, key_dim=d_mha)
         # self.lma._build_from_signature([q_length, d_mdl], [v_length, d_mdl])
         # self.lma = D2LMultiHeadAttention(v_length, q_length, v_length, d_mdl, h, 0.5, bias=True)
-        self.addnorm1 = LayerNormalization()
-        self.addnorm2 = LayerNormalization()
+        self.norm1 = LayerNormalization()
+        self.norm2 = LayerNormalization()
         self.ffp = Dense(d_mdl, name="block_out")
         self.d_mdl = d_mdl
         self.q_length = q_length
         self.v_length = v_length
 
-    def call(self, Q, K, V):
-        out = self.lma(Q, K, V)
-        out = self.addnorm1(out)
+    def call(self, Q, K, V, M=None):
+        out = self.lma(Q, K, V, M)
+        out = out + V
+        out = self.norm1(out)
         out = self.ffp(out)
-        return self.addnorm2(out)
+        out = out + V
+        return self.norm2(out)
 
 class JslBERT(tf.keras.Model):
     def __init__(self, blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha, mask_rate=0.2):
@@ -141,8 +143,15 @@ class JslBERT(tf.keras.Model):
 
         res = Word
 
+        Mask = X[:, 0, :] != self.PAD
+        N = tf.shape(Mask)[-1]
+        Mask = tf.repeat(Mask, repeats=N, axis=-1)
+        Mask = tf.reshape(Mask, [-1, N, N])
+        Mask2 = tf.transpose(Mask, perm=[0,2,1])
+        Mask = tf.logical_and(Mask, Mask2)
+
         for block in self.blocks:
-            res = block(res, res, res)
+            res = block(res, res, res, Mask)
 
         return res
 
