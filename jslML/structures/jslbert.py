@@ -66,7 +66,7 @@ class JslBERTBlock(Layer):
         return self.norm2(out)
 
 class JslBERT(tf.keras.Model):
-    def __init__(self, blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha, mask_rate=0.2):
+    def __init__(self, blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha, mask_rate=0.2, masked=False):
         super(JslBERT, self).__init__()
         self.tokEmb = Dense(d_model, name="Tok_embedding")
         self.posEmb = Dense(d_model, name="Pos_embedding")
@@ -86,6 +86,8 @@ class JslBERT(tf.keras.Model):
         self.CLS = 2
         self.SEP = 3
         self.MASK = 4
+
+        self.masked = masked
 
         self.no_masking = tf.constant([self.PAD, self.CLS, self.SEP])
 
@@ -143,12 +145,15 @@ class JslBERT(tf.keras.Model):
 
         res = Word
 
-        Mask = X[:, 0, :] != self.PAD
-        N = tf.shape(Mask)[-1]
-        Mask = tf.repeat(Mask, repeats=N, axis=-1)
-        Mask = tf.reshape(Mask, [-1, N, N])
-        Mask2 = tf.transpose(Mask, perm=[0,2,1])
-        Mask = tf.logical_and(Mask, Mask2)
+        Mask = None
+
+        if self.masked:
+            Mask = X[:, 0, :] != self.PAD
+            N = tf.shape(Mask)[-1]
+            Mask = tf.repeat(Mask, repeats=N, axis=-1)
+            Mask = tf.reshape(Mask, [-1, N, N])
+            Mask2 = tf.transpose(Mask, perm=[0,2,1])
+            Mask = tf.logical_and(Mask, Mask2)
 
         for block in self.blocks:
             res = block(res, res, res, Mask)

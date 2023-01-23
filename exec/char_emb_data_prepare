@@ -65,6 +65,7 @@ def main(argv):
         sys.exit()
 
     f_out = open(outURL, "w", encoding="utf8")
+    
     with open(inURL, "r", encoding="utf8") as f_in:
         for url_conllu in f_in:
             url_conllu = url_conllu.rstrip('\r\n\s')

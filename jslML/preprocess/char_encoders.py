@@ -27,10 +27,10 @@ unknown_code = 1
 padding_code = 0
 char_shift = 5
 
-def eng_char_encode(word, max_length=None):
+def eng_char_encode(word, slice_length=None):
     code = []
-    if max_length:
-        max_length -= 1
+    if slice_length:
+        slice_length -= 1
     for i in range(len(word)):
         char_code = ord(word[i])
         if eng_char_start <= char_code <= eng_char_end:
@@ -40,8 +40,6 @@ def eng_char_encode(word, max_length=None):
         code.append(char_code)
 
         #better than slicing after completion
-        if (max_length) and i == max_length:
+        if (slice_length) and i == slice_length:
             break
-    if (max_length) and i < max_length:
-        code = code + ([padding_code] * (max_length - i))
     return code

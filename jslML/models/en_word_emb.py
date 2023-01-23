@@ -20,9 +20,8 @@
 
 from jslML.structures.jslbert import JslBERT
 
-
-def new_eng_char_bert(blocks_nbr=1, d_model=10, heads_nbr=2, vocab_size = 100, max_length = 30, d_mha=5):
-    brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha)
+def new_eng_char_bert(blocks_nbr=1, d_model=10, heads_nbr=2, vocab_size = 100, max_length = 30, d_mha=5, masked=True):
+    brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha, masked)
     brt.compile(run_eagerly=True)
     return brt
 

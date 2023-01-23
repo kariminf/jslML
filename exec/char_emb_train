@@ -30,9 +30,10 @@ import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from jslML.preprocess.tools import prepare_data_char_bert
+from jslML.preprocess.jslbert_pre import JslBERTPreprocessor, prepare_data_char_bert
 from jslML.models.en_word_emb import new_eng_char_bert, train_eng_char_bert
 from jslML.preprocess.char_encoders import eng_char_encode
+from jslML.postprocess.jslbert_post import weights_to_js
 
 word_length = 14
 
@@ -46,7 +47,7 @@ def help():
 
 def get_X_Y(url):
     df = pd.read_csv(url, sep=";", header=None)
-    return prepare_data_char_bert(df, char_encoder=eng_char_encode, word_length=word_length)
+    return prepare_data_char_bert(df, eng_char_encode, 30)
 
 def main(argv):
     try:
@@ -84,6 +85,9 @@ def main(argv):
     train_eng_char_bert(brt, X, Y)
 
     tf.saved_model.save(brt, outURL)
+
+    weights_to_js(brt, outURL + ".weights.txt")
+
 
 
 if __name__ == "__main__":
