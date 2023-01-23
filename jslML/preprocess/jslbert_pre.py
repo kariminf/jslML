@@ -63,7 +63,7 @@ class JslBERTPreprocessor:
             length = self.max_length - 2
         seg = [0] * (self.max_length)
         tok = [self.CLS] + self.ordinal_encoder(word, length) + [self.SEP]
-        pos = list(range(length+1)) + [0]
+        pos = list(range(length+2))
         if length + 2 < self.max_length: # Padding
             length = self.max_length - length - 2
             tok = tok + [self.PAD] * length
