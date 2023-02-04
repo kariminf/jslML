@@ -70,7 +70,6 @@ def new_eng_char_bert(blocks_nbr=1, d_model=10, heads_nbr=2, vocab_size = 100, m
     return brt
 
 
-
 def train_eng_pos(brt, X, Y, epochs=100, batch_size=4000):
     brt.fit(X, Y, epochs=epochs, batch_size=batch_size)
 
