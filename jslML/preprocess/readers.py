@@ -32,6 +32,6 @@ def parse_ud_conllu_file(url):
                 if m.group(1) == "1":
                     words = []
                     sents.append(words)
-                words.append(m.group(2))
+                words.append((m.group(2), m.group(3), m.group(4)))
 
     return sents

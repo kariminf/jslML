@@ -24,11 +24,11 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from jslML.preprocess.readers import parse_ud_conllu_file
-from jslML.preprocess.jslbert_pre import generate_next
+from jslML.preprocess.tag_pre import generate_pos
 
 
 def help():
-    hlp = """char_emb_data_prepare [-i | --in] <file-name> [-o | --out] <file-name>:
+    hlp = """pos_data_prepare [-i | --in] <file-name> [-o | --out] <file-name>:
     Read a list of files using URLs stored in the first file
         Then generate a CSV file containing the first word, the second, and if it is next
     """
@@ -71,10 +71,11 @@ def main(argv):
             url_conllu = url_conllu.rstrip('\r\n\s')
             if len(url_conllu) < 2:
                 continue
-            for word1, word2, isnext in generate_next(parse_ud_conllu_file(url_conllu)):
-                word1 = word1.replace('"', '#@%')
-                word2 = word2.replace('"', '#@%')
-                f_out.write('"' + word1 + '";"' + word2 + '";' + str(isnext) + "\n")
+            for wordp, wordn, posn, wordc, posc in generate_pos(parse_ud_conllu_file(url_conllu)):
+                wordp = wordp.replace('"', '#@%')
+                wordn = wordn.replace('"', '#@%')
+                wordc = wordc.replace('"', '#@%')
+                f_out.write(f'"{wordp}";"{wordn}";"{posn}";"{wordc}";"{posc}"\n')
     f_out.close()
 
 

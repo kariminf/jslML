@@ -77,13 +77,13 @@ sep_code = 3
 def generate_next(sents):
     result = []
     for sent in sents:
-        for i, word in enumerate(sent):
+        for i, word_info in enumerate(sent):
             if i > 0:
-                result.append((sent[i-1], word, 1))
+                result.append((sent[i-1], word_info[0], 1))
             notpast = np.random.choice(len(sent), 1)[0]
             if notpast == i-1:
                 notpast = i
-            result.append((sent[notpast], word, 0))
+            result.append((sent[notpast], word_info[0], 0))
 
     return result
 
