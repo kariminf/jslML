@@ -62,3 +62,17 @@ def generate_pos(sents: List[List[Tuple[str, str, str]]], wb:int=1, wa:int=1, tp
 
 def encode_tag(tag, tag_list):
     return tag_list.index(tag)
+
+
+def prepare_data_memm_tag(df, word_encoder, pos_encoder):
+    X = []
+    Y = []
+    for index, row in df.iterrows():
+        wordp = row[0].replace("#@%", '"')
+        wordn = row[1].replace("#@%", '"')
+        posp  = row[2]
+        wordc = row[3].replace("#@%", '"')
+        posc  = row[4]
+        X.append(word_encoder.encode(wordp, wordn, posp, wordc))
+        Y.append(pos_encoder.encode(posc))
+    return X, Y

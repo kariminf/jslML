@@ -23,7 +23,7 @@ from jslML.preprocess.list_encoders import create_onehot_encoder, create_onehot_
 import re 
 
 tag_list = [
-    "<s>", "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", 
+    "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", 
     "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X"
     ]
 
@@ -57,21 +57,21 @@ def encode_surface(word):
     result.append(int(bool(RE_H.search(word))))
     #contains an uppercase
     result.append(int(bool(RE_U.search(word))))
-    #contains a point (dot)
+    #contains a period (dot)
     result.append(int(bool(RE_P.search(word))))
     return result
 
 def eng_word_srf_encoder(word):
     return encode_prefix(word) + encode_suffix(word) + encode_surface(word)
 
-def new_eng_char_bert(blocks_nbr=1, d_model=10, heads_nbr=2, vocab_size = 100, max_length = 30, d_mha=5, masked=True):
+def new_eng_pos(blocks_nbr=1, d_model=10, heads_nbr=2, vocab_size = 100, max_length = 30, d_mha=5, masked=True):
     brt = JslBERT(blocks_nbr, d_model, heads_nbr, vocab_size, max_length, d_mha, masked)
     brt.compile(run_eagerly=True)
     return brt
 
 
-def train_eng_pos(brt, X, Y, epochs=100, batch_size=4000):
-    brt.fit(X, Y, epochs=epochs, batch_size=batch_size)
+def train_eng_pos(pos, X, Y, epochs=100, batch_size=4000):
+    pos.fit(X, Y, epochs=epochs, batch_size=batch_size)
 
     print("tokEmb")
     print(brt.tokEmb.weights)

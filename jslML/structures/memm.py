@@ -40,9 +40,9 @@ def get_k_max(X, k):
     return sorted(X, key=lambda x: x[0], reverse=True)[:k]
 
 class BeamMEMM(tf.keras.Model):
-    def __init__(self, k:int, n:int, tg:TagEncoder):
+    def __init__(self, k:int, tg:TagEncoder):
         self.k = k
-        self.maxent = Dense(n, activation="softmax", name="tags")
+        self.maxent = Dense(len(tg.tag_list), activation="softmax", name="tags")
         self.tg = tg
         self.cls_names = tg.tag_list
     
@@ -63,7 +63,7 @@ class BeamMEMM(tf.keras.Model):
     @tf.function(input_signature=[tf.TensorSpec(shape=(None, None, None), dtype=tf.float32)])
     def init(self, x):
         self.BV = []
-        newx = self.tg.encode("<s>").concat(x);
+        newx = self.tg.encode("<t>").concat(x);
         p = np.log(self.maxent.predict(newx)[0])
         past_i = [-1] * len(p)
         # k_max = sorted(Z, key=lambda x: x[0], reverse=True)

@@ -71,11 +71,11 @@ def main(argv):
             url_conllu = url_conllu.rstrip('\r\n\s')
             if len(url_conllu) < 2:
                 continue
-            for wordp, wordn, posn, wordc, posc in generate_pos(parse_ud_conllu_file(url_conllu)):
+            for wordp, wordn, posp, wordc, posc in generate_pos(parse_ud_conllu_file(url_conllu)):
                 wordp = wordp.replace('"', '#@%')
                 wordn = wordn.replace('"', '#@%')
                 wordc = wordc.replace('"', '#@%')
-                f_out.write(f'"{wordp}";"{wordn}";"{posn}";"{wordc}";"{posc}"\n')
+                f_out.write(f'"{wordp}";"{wordn}";"{posp}";"{wordc}";"{posc}"\n')
     f_out.close()
 
 

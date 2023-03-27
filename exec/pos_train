@@ -30,10 +30,13 @@ import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from jslML.preprocess.jslbert_pre import JslBERTPreprocessor, prepare_data_char_bert
+from jslML.preprocess.tag_pre import prepare_data_memm_tag
 from jslML.models.en_word_emb import new_eng_char_bert, train_eng_char_bert
 from jslML.preprocess.char_encoders import eng_char_encode
 from jslML.postprocess.jslbert_post import weights_to_js
+from jslML.preprocess.jslbert_pre import JslBERTPreprocessor
+from jslML.structures.memm import TagEncoder, BeamMEMM
+from jslML.models.en_pos import tag_list, train_eng_pos
 
 word_length = 14
 
@@ -44,10 +47,24 @@ def help():
     """
     print(hlp)
 
+class EngWordEncoder:
+    def __init__(self) -> None:
+        self.ppr = JslBERTPreprocessor(eng_char_encode, 10)
+        inURL = '/content/drive/MyDrive/Colab Notebooks/content/UD.en.bert.char.v2'
+        self.brt = tf.saved_model.load(inURL)
+    
+    def encode(self, word):
+        if word == "<s>":
+            return [0.] * 10
+        if word == "</s>":
+            return [1.] * 10
+        X = [self.ppr.predict_encode(word)]
+        return self.brt.encode(X)[0,0,:]
+
 
 def get_X_Y(url):
     df = pd.read_csv(url, sep=";", header=None)
-    return prepare_data_char_bert(df, eng_char_encode, 30)
+    return prepare_data_memm_tag(df, EngWordEncoder(), TagEncoder(tag_list))
 
 def main(argv):
     try:
@@ -79,14 +96,14 @@ def main(argv):
         sys.exit()
 
     X, Y = get_X_Y(inURL)
-    Y = np.array(Y).reshape(-1, 1)
+    Y = np.array(Y)
     X = np.array(X)
-    brt = new_eng_char_bert()
-    train_eng_char_bert(brt, X, Y)
+    pos = BeamMEMM(5, TagEncoder(tag_list))
+    train_eng_pos(pos, X, Y)
 
-    tf.saved_model.save(brt, outURL)
+    tf.saved_model.save(pos, outURL)
 
-    weights_to_js(brt, outURL + ".weights.txt")
+    weights_to_js(pos, outURL + ".weights.txt")
 
 
 
