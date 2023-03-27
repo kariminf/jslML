@@ -28,7 +28,7 @@ def create_onehot_encoder(tag_list):
 
 def create_onehot_pref_encoder(size, pref_list):
     def onehot_encoder(word):
-        word = word.lowercase()
+        word = word.lower()
         result = [0] * len(pref_list)
         if len(word) > size:
             idx = -1
@@ -47,7 +47,7 @@ def create_onehot_pref_encoder(size, pref_list):
 
 def create_onehot_suff_encoder(size, suff_list):
     def onehot_encoder(word):
-        word = word.lowercase()
+        word = word.lower()
         result = [0] * len(suff_list)
         if len(word) > size:
             idx = -1

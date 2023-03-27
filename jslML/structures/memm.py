@@ -41,6 +41,7 @@ def get_k_max(X, k):
 
 class BeamMEMM(tf.keras.Model):
     def __init__(self, k:int, tg:TagEncoder):
+        super(self.__class__, self).__init__()
         self.k = k
         self.maxent = Dense(len(tg.tag_list), activation="softmax", name="tags")
         self.tg = tg

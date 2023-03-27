@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#  Copyright 2023 Abdelkrime Aries <kariminfo0@gmail.com>
+#
+#  ---- AUTHORS ----
+# 2023	Abdelkrime Aries <kariminfo0@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import sys, getopt
+import pandas as pd
+
+import logging, os
+logging.disable(logging.WARNING)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+import tensorflow as tf
+import numpy as np
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from jslML.postprocess.sword_post import sword_weights_to_js
+from jslML.structures.ae import SimpleAE
+
+word_length = 14
+
+def help():
+    hlp = """sword_train [-i | --in] <file-name> [-o | --out] <file-name>:
+    Read a csv file, train an auto-encoder,
+    then export the train model and the weights as js format
+    """
+    print(hlp)
+
+def get_X(url):
+    df = pd.read_csv(url, sep=",", header=None)
+    return df.to_numpy()
+
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv,"hi:o:",["help", "in=", "out="])
+    except getopt.GetoptError:
+        help()
+        sys.exit(2)
+
+    inURL = None
+    outURL = None
+
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            help()
+            sys.exit()
+        elif opt in ("-i", "--in"):
+            inURL = arg
+        elif opt in ("-o", "--out"):
+            outURL = arg
+
+    if inURL is None:
+        print("You have to specify a file as input")
+        sys.exit()
+    elif not os.path.isfile(inURL):
+        print("The input file does not exist")
+        sys.exit()
+    if outURL is None:
+        print("You have to specify a file as output")
+        sys.exit()
+
+    X = get_X(inURL)
+
+    sword_ae = SimpleAE(5, X.shape[1])
+    sword_ae.compile(run_eagerly=True,
+                     optimizer='adam', 
+                     loss=tf.keras.losses.MeanSquaredError())
+    sword_ae.fit(X, epochs=1000, batch_size=4000)
+
+    tf.saved_model.save(sword_ae, outURL)
+
+    sword_weights_to_js(sword_ae, outURL + ".weights.txt")
+
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
