@@ -28,10 +28,10 @@ tag_list = [
     ]
 
 prefixes = [
-    "ambi", "anti", "astro", "bi", "co", "con", "de", "dis", "em", "extra", "fore" "hetero"
-    "hind", "homo", "im", "in", "inter", "mal", "mid", "mis", "mono", "non", "on", "pan",
-    "ped", "post", "pre", "pro", "re", "semi", "sub", "sur", "trans", "tri", "twi", "ultra",
-    "un", "uni", "under", "up"
+    "ambi", "anti", "astro", "bi", "co", "con", "de", "dis", "em", "extra", "fore", 
+    "hetero", "hind", "homo", "im", "in", "inter", "mal", "mid", "mis", "mono", "non", 
+    "on", "pan", "ped", "post", "pre", "pro", "re", "semi", "sub", "sur", "trans", 
+    "tri", "twi", "ultra", "un", "uni", "under", "up"
 ]
 
 suffixes = [

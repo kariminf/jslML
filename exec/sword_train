@@ -81,7 +81,7 @@ def main(argv):
     sword_ae.compile(run_eagerly=True,
                      optimizer='adam', 
                      loss=tf.keras.losses.MeanSquaredError())
-    sword_ae.fit(X, epochs=1000, batch_size=4000)
+    sword_ae.fit(X, epochs=200, batch_size=4000)
 
     tf.saved_model.save(sword_ae, outURL)
 
