@@ -39,7 +39,7 @@ def create_onehot_pref_encoder(size, pref_list):
                     break
                 except ValueError:
                     pass
-            if idx > 0 :
+            if idx >= 0 :
                 result[idx] = 1
         return result
     return onehot_encoder
@@ -58,7 +58,7 @@ def create_onehot_suff_encoder(size, suff_list):
                     break
                 except ValueError:
                     pass
-            if idx > 0 :
+            if idx >= 0 :
                 result[idx] = 1
         return result
     return onehot_encoder
